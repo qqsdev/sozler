@@ -1,0 +1,34 @@
+<div class="layout">
+  <mat-toolbar class="app-toolbar">
+    <!-- <button mat-icon-button>
+      <mat-icon>menu</mat-icon>
+    </button> -->
+    <span>Sozler</span>
+
+    <div class="flex-spacer"></div>
+
+    <button mat-raised-button (click)="restart()">
+      <span>YANGI ÕYIN</span>
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <main>
+    <div class="guesses-row">
+      <app-guesses></app-guesses>
+      <app-guesses></app-guesses>
+      <app-guesses></app-guesses>
+      <app-guesses></app-guesses>
+      <app-guesses></app-guesses>
+      <app-guesses></app-guesses>
+      <app-guesses></app-guesses>
+      <app-guesses></app-guesses>
+    </div>
+  </main>
+
+  <div class="flex-spacer"></div>
+
+  <div class="app-keyboard">
+    <app-keyboard (keyboardEvent)="handleKeyboardEvent($event)"></app-keyboard>
+  </div>
+</div>

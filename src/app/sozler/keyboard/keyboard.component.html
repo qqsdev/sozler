@@ -1,0 +1,23 @@
+<div class="keyboard" [class.cyrillic]="isCyrillc">
+  <ng-container *ngFor="let key of keys">
+    <div
+      class="key"
+      [class.correct]="isCorrect(key)"
+      [class.wrong]="isWrong(key)"
+      [class.empty]="isEmpty(key)"
+      (click)="onKeypress({key, code: ''})"
+    >
+      {{ key }}
+    </div>
+  </ng-container>
+
+  <div
+    class="key backspace"
+    (click)="onKeypress({ key: 'Backspace', code: 'Backspace' })"
+  >
+    <mat-icon>backspace</mat-icon>
+  </div>
+  <div class="key enter" (click)="onKeypress({ key: 'Enter', code: 'Enter' })">
+    <mat-icon>keyboard_return</mat-icon>
+  </div>
+</div>

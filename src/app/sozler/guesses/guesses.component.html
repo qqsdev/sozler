@@ -1,0 +1,21 @@
+<div
+  *ngFor="let guess of guesses; let row = index"
+  class="guess-grid"
+  [class.incorrect]="incorrectWord"
+>
+  <div class="guess-row">
+    <div
+      *ngFor="let letter of guess; let i = index"
+      class="guess-letter"
+      [class.current-row]="row === currentRow"
+      [class.wrong]="isWrong(row, i)"
+      [class.correct]="isCorrect(row, i)"
+    >
+      {{ letter }}
+    </div>
+  </div>
+</div>
+
+<div class="solution">
+  {{ (sozler.isGameOver$ | async) ? solution : "" }}
+</div>

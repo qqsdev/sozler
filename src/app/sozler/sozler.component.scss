@@ -1,0 +1,44 @@
+.layout {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+main {
+  margin: 1rem auto;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.guesses-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  // row-gap: 2rem;
+  column-gap: 0.5rem;
+}
+
+.flex-spacer {
+  flex: 1 1 auto;
+}
+
+.app-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.app-keyboard {
+  position: sticky;
+  bottom: 0;
+  z-index: 1000;
+
+  display: flex;
+  justify-content: center;
+
+  width: 100%;
+  padding-bottom: 2px;
+  background-color: #333;
+}
