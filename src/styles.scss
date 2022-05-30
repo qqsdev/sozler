@@ -1,25 +1,6 @@
-@import "../node_modules/@angular/material/theming";
-@include mat-core();
-
-// $custom-theme-primary: mat-palette($mat-indigo);
-$custom-theme-primary: mat-palette($mat-deep-purple);
-$custom-theme-accent: mat-palette($mat-green);
-$custom-theme-warn: mat-palette($mat-red);
-
-$custom-theme-light: mat-light-theme(
-  $custom-theme-primary,
-  $custom-theme-accent,
-  $custom-theme-warn
-);
-$custom-theme-dark: mat-dark-theme(
-  $custom-theme-primary,
-  $custom-theme-accent,
-  $custom-theme-warn
-);
-
-@include angular-material-theme($custom-theme-dark);
-
-* {
+*,
+::before,
+::after {
   box-sizing: border-box;
 }
 
@@ -38,4 +19,8 @@ body {
     color: #fff;
     text-decoration: none;
   }
+}
+
+body.dark-theme .mat-drawer-container {
+  background-color: #333;
 }
