@@ -1,0 +1,80 @@
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav
+    #drawer
+    mode="over"
+    class="sidenav"
+    fixedInViewport="true"
+    role="navigation"
+  >
+    <mat-nav-list class="nav-list">
+      <a
+        mat-list-item
+        routerLink="/1"
+        routerLinkActive="active"
+        (click)="drawer.toggle()"
+      >
+        <mat-icon>filter_1</mat-icon>
+        <span class="menu-item">Bitta so'z</span>
+      </a>
+
+      <a
+        mat-list-item
+        routerLink="/2"
+        routerLinkActive="active"
+        (click)="drawer.toggle()"
+      >
+        <mat-icon>filter_2</mat-icon>
+        <span class="menu-item">Ikta so'z</span>
+      </a>
+
+      <a
+        mat-list-item
+        routerLink="/4"
+        routerLinkActive="active"
+        (click)="drawer.toggle()"
+      >
+        <mat-icon>filter_4</mat-icon>
+        <span class="menu-item">To'rtta so'z</span>
+      </a>
+
+      <a
+        mat-list-item
+        routerLink="/8"
+        routerLinkActive="active"
+        (click)="drawer.toggle()"
+      >
+        <mat-icon>filter_8</mat-icon>
+        <span class="menu-item">Sakkizta so'z</span>
+      </a>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="layout">
+    <mat-toolbar class="app-toolbar">
+      <button type="button" mat-icon-button (click)="drawer.toggle()">
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      <span>
+        <a mat-list-item routerLink="/">{{ title }} </a>
+      </span>
+
+      <div class="flex-spacer"></div>
+
+      <button mat-flat-button (click)="restart()">YANGI ÕYIN</button>
+
+      <button mat-flat-button [matMenuTriggerFor]="alphabet">ALIFBO</button>
+      <mat-menu #alphabet="matMenu">
+        <ng-container *ngFor="let alphabet of availableAlphabets">
+          <button mat-menu-item (click)="setAlphabet(alphabet)">
+            {{ alphabet.name }}
+          </button>
+        </ng-container>
+      </mat-menu>
+    </mat-toolbar>
+
+    <main>
+      <router-outlet></router-outlet>
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

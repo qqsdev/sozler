@@ -1,0 +1,35 @@
+.layout {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.app-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  button {
+    margin: 0.2rem;
+  }
+}
+
+.sidenav {
+  width: 260px;
+  color: #fff;
+
+  .nav-list {
+    .menu-item {
+      margin-left: 10px;
+    }
+    .active {
+      background-color: #555;
+    }
+  }
+}
+
+main {
+  padding-top: 0.5rem;
+  height: 100vh;
+}
