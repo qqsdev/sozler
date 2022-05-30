@@ -1,13 +1,13 @@
 import {
   Component,
   OnInit,
-  ChangeDetectionStrategy,
   Output,
   EventEmitter,
   HostListener,
 } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { SozlerService } from '../sozler.service';
+import { AlphabetService } from 'src/app/services/alphabet.service';
+import { SozlerService } from '../../services/sozler.service';
 
 @UntilDestroy()
 @Component({
@@ -19,22 +19,26 @@ import { SozlerService } from '../sozler.service';
 export class KeyboardComponent implements OnInit {
   @Output() keyboardEvent = new EventEmitter<string>();
 
-  public keys = this.sozler.keys;
-  public isCyrillc = this.sozler.isCyrillc;
+  public currentAlphabet$ = this.alphabet.current$;
 
   public emptyLetters: string[] = [];
   public wrongLetters: string[] = [];
   public correctLetters: string[] = [];
 
   private lastKey = '';
+  private shortcuts? = '';
 
-  constructor(private sozler: SozlerService) {}
+  constructor(
+    private sozler: SozlerService,
+    private alphabet: AlphabetService
+  ) {}
 
   ngOnInit(): void {
     this.sozler.restart$.pipe(untilDestroyed(this)).subscribe(() => {
       this.emptyLetters = [];
       this.wrongLetters = [];
       this.correctLetters = [];
+      this.lastKey = '';
     });
 
     this.sozler.emptyLetters$.pipe(untilDestroyed(this)).subscribe((letter) => {
@@ -50,13 +54,15 @@ export class KeyboardComponent implements OnInit {
       .subscribe((letter) => {
         this.correctLetters.push(letter);
       });
+
+    this.alphabet.current$.pipe(untilDestroyed(this)).subscribe((alphabet) => {
+      this.shortcuts = alphabet.shortcuts;
+    });
   }
 
   @HostListener('document:keydown', ['$event'])
   public onKeypress({ key, code }: { key: string; code: string }) {
     let letter = key.toUpperCase();
-
-    this.sozler.changeKeyboardLanguageIfNeeded(code, letter);
 
     if (code === 'Enter') {
       this.sozler.submitted$.emit();
@@ -88,7 +94,8 @@ export class KeyboardComponent implements OnInit {
 
     this.lastKey = letter;
 
-    if (this.keys.includes(letter)) {
+    const keys = this.currentAlphabet$.value.letters;
+    if (keys.includes(letter)) {
       this.keyboardEvent.emit(letter);
     }
   }

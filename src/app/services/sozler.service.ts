@@ -1,21 +1,13 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { words } from '../words/five-letter-words_latin';
-// import { words } from '../words/five-letter-words_cyrillic';
+import { AlphabetService } from './alphabet.service';
 
 const EMPTY = '⬜️';
 const WRONG = '🟨';
 const CORRECT = '🟩';
 
-const KEYS_EN_LATIN = 'QWERTYUIOPASDFGHJKLZXCVBNM'.split('');
-const KEYS_UZ_LATIN = 'QERTYUIOÕPASDFGĞHJKLZXCVBNM'.split('');
-const KEYS_UZ_CYRILLIC = 'ЙЦУКЕНГШЎЗХҒФҚВАПРОЛДЖЭЯЧСМИТЁБЮ'.split('');
-
 @Injectable({ providedIn: 'root' })
 export class SozlerService {
-  public keys = KEYS_UZ_LATIN;
-  public isCyrillc = this.keys === KEYS_UZ_CYRILLIC;
-
   public submitted$ = new EventEmitter();
   public removed$ = new EventEmitter();
   public restart$ = new EventEmitter();
@@ -26,20 +18,31 @@ export class SozlerService {
   public wrongLetters$ = new BehaviorSubject('');
   public correctLetters$ = new BehaviorSubject('');
 
+  constructor(private alphabetService: AlphabetService) {}
+
   public restart() {
     this.isGameOver$.next(false);
     this.emptyLetters$.next('');
     this.wrongLetters$.next('');
     this.correctLetters$.next('');
+    this.lastLetter$.next('');
+    this.restart$.emit();
   }
 
   public getRandomWord() {
-    const random = Math.floor(Math.random() * words.length);
-    return words[random];
+    return this.alphabetService.getRandomWord();
   }
 
   public isWordExists(word: string) {
-    return words.includes(word);
+    return this.alphabetService.isWordExists(word);
+  }
+
+  public isCorrect(attempts: string[][], row: number, i: number) {
+    return attempts[row] && attempts[row][i] && attempts[row][i] === CORRECT;
+  }
+
+  public isWrong(attempts: string[][], row: number, i: number) {
+    return attempts[row] && attempts[row][i] && attempts[row][i] === WRONG;
   }
 
   public verifyInput(solution: string, attempt: string) {
@@ -74,26 +77,5 @@ export class SozlerService {
         this.emptyLetters$.next(item);
         return EMPTY;
       });
-  }
-
-  public isCorrect(attempts: string[][], row: number, i: number) {
-    return attempts[row] && attempts[row][i] && attempts[row][i] === CORRECT;
-  }
-
-  public isWrong(attempts: string[][], row: number, i: number) {
-    return attempts[row] && attempts[row][i] && attempts[row][i] === WRONG;
-  }
-
-  public changeKeyboardLanguageIfNeeded(code: string, letter: string) {
-    if (!code) return;
-
-    if (code.startsWith('Key')) {
-      if (code[3] === letter) {
-        this.keys = KEYS_UZ_LATIN;
-      } else {
-        this.keys = KEYS_UZ_CYRILLIC;
-      }
-      this.isCyrillc = this.keys === KEYS_UZ_CYRILLIC;
-    }
   }
 }

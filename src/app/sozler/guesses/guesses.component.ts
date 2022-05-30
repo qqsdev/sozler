@@ -1,12 +1,14 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { filter, takeWhile } from 'rxjs/operators';
-import { SozlerService } from '../sozler.service';
-
-// ikta tilli wordle
+import { Subscription } from 'rxjs';
+import { filter, tap } from 'rxjs/operators';
+import { SozlerService } from '../../services/sozler.service';
 
 const MAX_ATTEMPS = 13;
 const LETTERS_COUNT = 5;
+
+const createJaggeredArray = (outerLenght: number, innerLength: number) =>
+  Array.apply(null, Array(outerLenght)).map(() => Array(innerLength));
 
 @UntilDestroy()
 @Component({
@@ -16,110 +18,27 @@ const LETTERS_COUNT = 5;
   // changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GuessesComponent implements OnInit {
+  @Input() solution: string = '';
+  @Input() attemptsCount: number = MAX_ATTEMPS;
+  @Output() wordFoundEvent = new EventEmitter<boolean>();
+
+  public isGameOver$ = this.sozler.isGameOver$;
+
   public guesses: string[][] = [];
-  public currentGuess?: string[];
-  public solution: string = '';
   public attempts: string[][] = [];
+  public currentGuess?: string[];
 
   public currentIndex: number = 0;
   public currentRow: number = 0;
   public incorrectWord: boolean = false;
   public wordFound: boolean = false;
 
-  constructor(public sozler: SozlerService) {}
+  private subscribtions: Subscription[] = [];
+
+  constructor(private sozler: SozlerService) {}
 
   ngOnInit(): void {
     this.initialize();
-
-    this.sozler.restart$.pipe(untilDestroyed(this)).subscribe(() => {
-      window.location.reload();
-      // this.sozler.restart();
-      // this.initialize();
-    });
-
-    this.sozler.lastLetter$
-      .pipe(
-        untilDestroyed(this),
-        filter(() => !this.wordFound)
-      )
-      .subscribe((letter) => {
-        if (!letter) return;
-        if (this.currentIndex >= LETTERS_COUNT) return;
-
-        this.incorrectWord = false;
-
-        if (this.currentGuess) {
-          this.currentGuess[this.currentIndex] = letter;
-          this.currentIndex = this.currentIndex + 1;
-
-          if (this.currentGuess.length) {
-            const guess = this.currentGuess.join('').toLowerCase().trim();
-
-            if (guess.length === LETTERS_COUNT) {
-              if (!this.sozler.isWordExists(guess)) {
-                this.incorrectWord = true;
-              }
-            }
-          }
-        }
-      });
-
-    this.sozler.removed$
-      .pipe(
-        untilDestroyed(this),
-        filter(() => !this.wordFound)
-      )
-      .subscribe(() => {
-        if (this.currentIndex <= 0) return;
-
-        if (this.currentGuess) {
-          this.currentIndex = this.currentIndex - 1;
-          this.currentGuess[this.currentIndex] = '';
-        }
-
-        this.incorrectWord = false;
-      });
-
-    this.sozler.submitted$
-      .pipe(
-        untilDestroyed(this),
-        filter(() => !this.wordFound)
-      )
-      .subscribe(() => {
-        console.log('submitted$', this.wordFound);
-        this.incorrectWord = false;
-
-        if (!this.currentGuess) return;
-        if (!this.currentGuess.length) return;
-
-        const guess = this.currentGuess.join('').toLowerCase().trim();
-
-        console.log('submitted$', guess);
-
-
-        if (guess.length === LETTERS_COUNT) {
-          if (this.sozler.isWordExists(guess)) {
-            this.attempts[this.currentRow] = this.sozler.verifyInput(
-              this.solution,
-              guess
-            );
-
-            this.currentRow = this.currentRow + 1;
-            this.currentIndex = 0;
-            this.currentGuess = this.guesses[this.currentRow];
-
-            if (guess === this.solution) {
-              this.wordFound = true;
-            }
-          } else {
-            this.incorrectWord = true;
-          }
-        }
-
-        if (this.currentRow >= MAX_ATTEMPS) {
-          this.sozler.isGameOver$.next(true);
-        }
-      });
   }
 
   public isCorrect(row: number, i: number) {
@@ -131,11 +50,9 @@ export class GuessesComponent implements OnInit {
   }
 
   private initialize() {
-    this.solution = this.sozler.getRandomWord();
+    this.solution = this.solution || this.sozler.getRandomWord();
 
-    this.guesses = Array.apply(null, Array(MAX_ATTEMPS)).map(() =>
-      Array(LETTERS_COUNT)
-    );
+    this.guesses = createJaggeredArray(this.attemptsCount, LETTERS_COUNT);
 
     this.currentGuess = this.guesses[0];
     this.currentRow = 0;
@@ -143,5 +60,109 @@ export class GuessesComponent implements OnInit {
     this.attempts = [];
     this.incorrectWord = false;
     this.wordFound = false;
+
+    this.unsubscribeFromEvents();
+    this.subscribeToEvents();
+  }
+
+  private unsubscribeFromEvents() {
+    if (this.subscribtions.length) {
+      for (const subscribtion of this.subscribtions) {
+        subscribtion.unsubscribe();
+      }
+    }
+
+    this.subscribtions = [];
+  }
+
+  private subscribeToEvents() {
+    this.subscribtions.push(
+      this.sozler.restart$.pipe(untilDestroyed(this)).subscribe(() => {
+        console.log('restarting');
+        this.initialize();
+      })
+    );
+
+    this.subscribtions.push(
+      this.sozler.lastLetter$
+        .pipe(
+          untilDestroyed(this),
+          filter(() => !this.wordFound),
+          filter((letter) => !!letter),
+          filter(() => this.currentIndex < LETTERS_COUNT),
+          tap(() => (this.incorrectWord = false))
+        )
+        .subscribe((letter) => {
+          if (this.currentGuess) {
+            this.currentGuess[this.currentIndex] = letter;
+            this.currentIndex = this.currentIndex + 1;
+
+            if (this.currentGuess.length) {
+              const guess = this.currentGuess.join('').toLowerCase().trim();
+
+              if (guess.length === LETTERS_COUNT) {
+                if (!this.sozler.isWordExists(guess)) {
+                  this.incorrectWord = true;
+                }
+              }
+            }
+          }
+        })
+    );
+
+    this.subscribtions.push(
+      this.sozler.removed$
+        .pipe(
+          untilDestroyed(this),
+          filter(() => !this.wordFound),
+          filter(() => this.currentIndex > 0),
+          tap(() => (this.incorrectWord = false))
+        )
+        .subscribe(() => {
+          if (this.currentGuess) {
+            this.currentIndex = this.currentIndex - 1;
+            this.currentGuess[this.currentIndex] = '';
+          }
+        })
+    );
+
+    this.subscribtions.push(
+      this.sozler.submitted$
+        .pipe(
+          untilDestroyed(this),
+          filter(() => !this.wordFound),
+          tap(() => (this.incorrectWord = false))
+        )
+        .subscribe(() => {
+          if (!this.currentGuess) return;
+          if (!this.currentGuess.length) return;
+
+          const guess = this.currentGuess.join('').toLowerCase().trim();
+
+          if (guess.length === LETTERS_COUNT) {
+            if (this.sozler.isWordExists(guess)) {
+              this.attempts[this.currentRow] = this.sozler.verifyInput(
+                this.solution,
+                guess
+              );
+
+              this.currentRow = this.currentRow + 1;
+              this.currentIndex = 0;
+              this.currentGuess = this.guesses[this.currentRow];
+
+              if (guess === this.solution) {
+                this.wordFound = true;
+                this.wordFoundEvent.emit(true);
+              }
+            } else {
+              this.incorrectWord = true;
+            }
+          }
+
+          if (this.currentRow >= MAX_ATTEMPS) {
+            this.sozler.isGameOver$.next(true);
+          }
+        })
+    );
   }
 }

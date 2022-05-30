@@ -1,30 +1,13 @@
-<div class="layout">
-  <mat-toolbar class="app-toolbar">
-    <!-- <button mat-icon-button>
-      <mat-icon>menu</mat-icon>
-    </button> -->
-    <span>Sozler</span>
-
-    <div class="flex-spacer"></div>
-
-    <button mat-raised-button (click)="restart()">
-      <span>YANGI ÕYIN</span>
-      <mat-icon>refresh</mat-icon>
-    </button>
-  </mat-toolbar>
-
-  <main>
-    <div class="guesses-row">
-      <app-guesses></app-guesses>
-      <app-guesses></app-guesses>
-      <app-guesses></app-guesses>
-      <app-guesses></app-guesses>
-      <app-guesses></app-guesses>
-      <app-guesses></app-guesses>
-      <app-guesses></app-guesses>
-      <app-guesses></app-guesses>
-    </div>
-  </main>
+<div class="sozler flex-column">
+  <div class="guesses-row">
+    <ng-container *ngFor="let game of games$ | async">
+      <app-guesses
+        [solution]="game.word"
+        [attemptsCount]="(attemptsCount$ | async) || defaultAttemptsCount"
+        (wordFoundEvent)="handleWordFound(game)"
+      ></app-guesses>
+    </ng-container>
+  </div>
 
   <div class="flex-spacer"></div>
 

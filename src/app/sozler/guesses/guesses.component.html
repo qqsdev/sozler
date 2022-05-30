@@ -17,5 +17,9 @@
 </div>
 
 <div class="solution">
-  {{ (sozler.isGameOver$ | async) ? solution : "" }}
+  <ng-container *ngIf="isGameOver$ | async">
+    <a [href]="'https://uz.wiktionary.org/wiki/' + solution" target="_blank">
+      <mat-icon>link</mat-icon> {{ solution }}
+    </a>
+  </ng-container>
 </div>
