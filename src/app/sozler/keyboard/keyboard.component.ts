@@ -62,11 +62,39 @@ export class KeyboardComponent implements OnInit {
 
   @HostListener('document:keydown', ['$event'])
   public onKeypress({ key, code }: { key: string; code: string }) {
+    const alphabet = this.currentAlphabet$.value;
     let letter = key.toUpperCase();
 
     if (code === 'Enter') {
       this.sozler.submitted$.emit();
       return;
+    }
+
+    // TODO: clean up the mess:
+
+    if (alphabet.letters.includes('Ç')) {
+      if (code === 'KeyC') {
+        letter = 'Ç';
+      }
+    }
+
+    if (alphabet.letters.includes('Ş')) {
+      if (this.lastKey === 'S') {
+        if (code === 'KeyH') {
+          letter = 'Ş';
+          this.sozler.removed$.emit();
+        }
+      }
+      if (this.lastKey === 'Ş') {
+        if (code === 'Backspace') {
+          this.sozler.removed$.emit();
+
+          letter = 'S';
+          this.lastKey = letter;
+          this.keyboardEvent.emit(letter);
+          return;
+        }
+      }
     }
 
     if (code === 'Quote') {
@@ -94,8 +122,7 @@ export class KeyboardComponent implements OnInit {
 
     this.lastKey = letter;
 
-    const keys = this.currentAlphabet$.value.letters;
-    if (keys.includes(letter)) {
+    if (alphabet.letters.includes(letter)) {
       this.keyboardEvent.emit(letter);
     }
   }
