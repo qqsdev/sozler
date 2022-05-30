@@ -4,6 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 import { words as WORDS_LATIN } from '../words/five-letter-words_latin';
 import { words as WORDS_TURKISH_LATIN } from '../words/five-letter-words_turkish_latin';
 import { words as WORDS_CYRILLIC } from '../words/five-letter-words_cyrillic';
+import { CYRILLIC_TO_LATIN_MAP } from '../words/cyrillic-to-latin-map';
 
 const KEYS_UZ_LATIN = 'QERTYUIOÕPASDFGĞHJKLZXCVBNM'.split('');
 const KEYS_UZ_TURKISH_LATIN = 'QERTYUIOÕPASDFGĞHJKLZXŞÇVBNM'.split('');
@@ -20,23 +21,25 @@ export class Alphabet {
 }
 
 const ALPHABETS: Record<string, Alphabet> = {
+  UZ_CYRILLIC: {
+    name: 'Кирилл',
+    words: WORDS_CYRILLIC,
+    letters: KEYS_UZ_CYRILLIC,
+    cssClass: 'cyrillic',
+  },
   UZ_LATIN_NEW: {
-    name: 'Lotin 1995-hozirgi vaqt',
+    // name: 'Lotin 1995-hozirgi vaqt',
+    name: 'Lotin',
     words: WORDS_LATIN,
     letters: KEYS_UZ_LATIN,
     cssClass: 'latin',
   },
   UZ_LATIN_OLD: {
-    name: 'Lotin 1993-1995',
+    // name: 'Lotin (1993-1995)',
+    name: 'Lotin (Ş va Ç)',
     words: WORDS_TURKISH_LATIN,
     letters: KEYS_UZ_TURKISH_LATIN,
     cssClass: 'turkish-latin',
-  },
-  UZ_CYRILLIC: {
-    name: 'Kirill',
-    words: WORDS_CYRILLIC,
-    letters: KEYS_UZ_CYRILLIC,
-    cssClass: 'cyrillic',
   },
 };
 
@@ -69,5 +72,23 @@ export class AlphabetService {
   public isWordExists(word: string) {
     const current = this.current$.value;
     return current.words.includes(word);
+  }
+
+  public convertToLatin(word: string) {
+    if (word.startsWith('е')) {
+      word = word.replace(/е/g, 'ye');
+    }
+
+    for (const [cyrillic, latin] of Object.entries(CYRILLIC_TO_LATIN_MAP)) {
+      word = word.replace(new RegExp(cyrillic, 'g'), latin);
+    }
+
+    word = word
+      .replace(/õ/g, "o'")
+      .replace(/ğ/g, "g'")
+      .replace(/ş/g, 'sh')
+      .replace(/ç/g, 'ch');
+
+    return word;
   }
 }

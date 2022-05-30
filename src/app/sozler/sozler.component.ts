@@ -22,7 +22,7 @@ class Game {
   selector: 'app-sozler',
   templateUrl: './sozler.component.html',
   styleUrls: ['./sozler.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  // changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SozlerComponent implements OnInit {
   public defaultAttemptsCount = 6;
@@ -35,7 +35,7 @@ export class SozlerComponent implements OnInit {
     this.defaultAttemptsCount
   );
 
-  private wordsCount: number = 1;
+  public wordsCount: number = 1;
 
   constructor(
     private route: ActivatedRoute,
@@ -51,7 +51,7 @@ export class SozlerComponent implements OnInit {
 
       if (wordsCount && !Number.isNaN(wordsCount)) {
         this.wordsCount = +wordsCount;
-        this.createNewGame();
+        this.restart();
       }
     });
 
@@ -90,8 +90,6 @@ export class SozlerComponent implements OnInit {
     if (isGameOver) {
       this.sozler.isGameOver$.next(true);
     }
-
-    console.log(this.games$.value, isGameOver);
   }
 
   private calculateAttempsCount(gamesCount: number) {

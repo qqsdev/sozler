@@ -1,0 +1,15 @@
+// $custom-theme-primary: mat-palette($mat-indigo);
+$custom-theme-primary: mat-palette($mat-deep-purple);
+$custom-theme-accent: mat-palette($mat-green);
+$custom-theme-warn: mat-palette($mat-red);
+
+$custom-theme-light: mat-light-theme(
+  $custom-theme-primary,
+  $custom-theme-accent,
+  $custom-theme-warn
+);
+$custom-theme-dark: mat-dark-theme(
+  $custom-theme-primary,
+  $custom-theme-accent,
+  $custom-theme-warn
+);

@@ -1,8 +1,4 @@
-<div
-  *ngFor="let guess of guesses; let row = index"
-  class="guess-grid"
-  [class.incorrect]="incorrectWord"
->
+<div *ngFor="let guess of guesses; let row = index" class="guess-grid" [class.incorrect]="incorrectWord">
   <div class="guess-row">
     <div
       *ngFor="let letter of guess; let i = index"
@@ -18,8 +14,6 @@
 
 <div class="solution">
   <ng-container *ngIf="isGameOver$ | async">
-    <a [href]="'https://uz.wiktionary.org/wiki/' + solution" target="_blank">
-      <mat-icon>link</mat-icon> {{ solution }}
-    </a>
+    <a [href]="wikiLink()" target="_blank"> <mat-icon>auto_stories</mat-icon> {{ solution }} </a>
   </ng-container>
 </div>

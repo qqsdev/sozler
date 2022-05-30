@@ -1,5 +1,5 @@
 <div class="sozler flex-column">
-  <div class="guesses-row">
+  <div class="guesses-row words-count-{{ wordsCount }}">
     <ng-container *ngFor="let game of games$ | async">
       <app-guesses
         [solution]="game.word"

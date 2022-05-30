@@ -2,7 +2,9 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Subscription } from 'rxjs';
 import { filter, tap } from 'rxjs/operators';
+
 import { SozlerService } from '../../services/sozler.service';
+import { AlphabetService } from 'src/app/services/alphabet.service';
 
 const MAX_ATTEMPS = 13;
 const LETTERS_COUNT = 5;
@@ -35,10 +37,18 @@ export class GuessesComponent implements OnInit {
 
   private subscribtions: Subscription[] = [];
 
-  constructor(private sozler: SozlerService) {}
+  constructor(
+    private sozler: SozlerService,
+    private alphabet: AlphabetService
+  ) {}
 
   ngOnInit(): void {
     this.initialize();
+  }
+
+  public wikiLink() {
+    let solution = this.alphabet.convertToLatin(this.solution);
+    return `https://uz.wiktionary.org/wiki/${solution}`;
   }
 
   public isCorrect(row: number, i: number) {
@@ -77,10 +87,9 @@ export class GuessesComponent implements OnInit {
 
   private subscribeToEvents() {
     this.subscribtions.push(
-      this.sozler.restart$.pipe(untilDestroyed(this)).subscribe(() => {
-        console.log('restarting');
-        this.initialize();
-      })
+      this.sozler.restart$
+        .pipe(untilDestroyed(this))
+        .subscribe(() => this.initialize())
     );
 
     this.subscribtions.push(
@@ -159,8 +168,9 @@ export class GuessesComponent implements OnInit {
             }
           }
 
-          if (this.currentRow >= MAX_ATTEMPS) {
+          if (this.currentRow >= this.attemptsCount) {
             this.sozler.isGameOver$.next(true);
+            this.wordFoundEvent.emit(false);
           }
         })
     );
