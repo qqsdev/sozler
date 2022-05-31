@@ -33,17 +33,6 @@ body.dark-theme .mat-drawer-container {
     .guess-letter {
       width: 4rem !important;
       font-size: 2rem !important;
-      aspect-ratio: 0.8 !important;
     }
-  }
-
-  &.words-count-2 .guess-letter {
-    aspect-ratio: 0.8 !important;
-  }
-  &.words-count-4 .guess-letter {
-    aspect-ratio: 0.8;
-  }
-  &.words-count-8 .guess-letter {
-    aspect-ratio: 0.9;
   }
 }

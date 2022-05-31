@@ -28,14 +28,14 @@ const ALPHABETS: Record<string, Alphabet> = {
     cssClass: 'cyrillic',
   },
   UZ_LATIN_NEW: {
-    // name: 'Lotin 1995-hozirgi vaqt',
+    // name: 'Lotin 1995-hozirgi vaqt', <- birinchi variant
     name: 'Lotin',
     words: WORDS_LATIN,
     letters: KEYS_UZ_LATIN,
     cssClass: 'latin',
   },
   UZ_LATIN_OLD: {
-    // name: 'Lotin (1993-1995)',
+    // name: 'Lotin (1993-1995)', <- birinchi variant
     name: 'Lotin (Ş va Ç)',
     words: WORDS_TURKISH_LATIN,
     letters: KEYS_UZ_TURKISH_LATIN,
